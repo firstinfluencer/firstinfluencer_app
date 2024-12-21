@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence, collection, query, where, orderBy } from 'firebase/firestore';
 import { getAnalytics } from 'firebase/analytics';
 
 const firebaseConfig = {
@@ -31,3 +31,27 @@ try {
 } catch (err) {
   console.warn('Error enabling persistence:', err);
 }
+
+// Create required composite indexes
+export async function createRequiredIndexes() {
+  try {
+    // Index for campaigns (status + createdAt)
+    const campaignsRef = collection(db, 'campaigns');
+    await query(
+      campaignsRef,
+      where('status', '==', 'active'),
+      orderBy('createdAt', 'desc')
+    );
+
+    console.log('Required indexes created successfully');
+  } catch (error) {
+    if (error.code === 'failed-precondition') {
+      console.warn('Please create the required indexes in the Firebase Console');
+    } else {
+      console.error('Error creating indexes:', error);
+    }
+  }
+}
+
+// Initialize indexes
+createRequiredIndexes();

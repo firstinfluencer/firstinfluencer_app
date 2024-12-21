@@ -11,10 +11,11 @@ import { LandingPage } from './pages/LandingPage';
 import { AuthPage } from './pages/AuthPage';
 import { BrandDashboard } from './pages/BrandDashboard';
 import { CreatorDashboard } from './pages/CreatorDashboard';
+import { BrandMessagesPage } from './pages/brand/MessagesPage';
+import { CreatorMessagesPage } from './pages/creator/MessagesPage';
 import { MyCampaignsPage } from './pages/brand/MyCampaignsPage';
 import { CreateCampaignPage } from './pages/brand/CreateCampaignPage';
-import { BrandOnboarding } from './components/onboarding/BrandOnboarding';
-import { WelcomePage } from './pages/brand/WelcomePage';
+import { TrackCampaignPage } from './pages/brand/TrackCampaignPage';
 
 export default function App() {
   return (
@@ -25,13 +26,19 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
-            <Route path="/brand/onboarding" element={<BrandOnboarding />} />
-            <Route path="/brand/welcome" element={<WelcomePage />} />
             <Route
               path="/brand-dashboard"
               element={
                 <ProtectedRoute userType="brand">
                   <BrandDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/brand/messages"
+              element={
+                <ProtectedRoute userType="brand">
+                  <BrandMessagesPage />
                 </ProtectedRoute>
               }
             />
@@ -52,10 +59,26 @@ export default function App() {
               }
             />
             <Route
+              path="/brand/campaigns/track"
+              element={
+                <ProtectedRoute userType="brand">
+                  <TrackCampaignPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/creator-dashboard"
               element={
                 <ProtectedRoute userType="creator">
                   <CreatorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/creator/messages"
+              element={
+                <ProtectedRoute userType="creator">
+                  <CreatorMessagesPage />
                 </ProtectedRoute>
               }
             />

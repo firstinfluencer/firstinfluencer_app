@@ -75,7 +75,8 @@ export function useCampaigns() {
         ...campaignData,
         brandId: user.uid,
         createdAt: new Date(),
-        budget: Math.round(Number(campaignData.budget)) // Ensure budget is a whole number
+        status: campaignData.status || 'draft',
+        budget: Math.round(Number(campaignData.budget))
       };
 
       const docRef = await addDoc(campaignsRef, newCampaign);

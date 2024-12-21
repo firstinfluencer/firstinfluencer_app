@@ -13,7 +13,7 @@ export function useGemini() {
     setError(null);
     
     try {
-      const suggestions = await generateCampaignSuggestions(prompt, user?.uid);
+      const suggestions = await generateCampaignSuggestions(prompt, user?.email);
       return suggestions;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to generate suggestions');

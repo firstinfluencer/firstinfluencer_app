@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
-import { User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { signUpBrand, signInBrand } from '@/services/firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged,
+  signOut as firebaseSignOut,
+  User 
+} from 'firebase/auth';
+import { auth } from '../lib/firebase';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
     });
@@ -18,36 +21,16 @@ export function useAuth() {
     return unsubscribe;
   }, []);
 
-  const signUp = async (email: string, password: string) => {
-    try {
-      await signUpBrand(email, password);
-      // Redirect to onboarding after successful signup
-      navigate('/brand/onboarding');
-    } catch (error) {
-      console.error('Error signing up:', error);
-      throw error;
-    }
+  const signUp = (email: string, password: string) => {
+    return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  const signIn = async (email: string, password: string) => {
-    try {
-      await signInBrand(email, password);
-      // Redirect to dashboard after successful signin
-      navigate('/brand-dashboard');
-    } catch (error) {
-      console.error('Error signing in:', error);
-      throw error;
-    }
+  const signIn = (email: string, password: string) => {
+    return signInWithEmailAndPassword(auth, email, password);
   };
 
-  const signOut = async () => {
-    try {
-      await auth.signOut();
-      navigate('/');
-    } catch (error) {
-      console.error('Error signing out:', error);
-      throw error;
-    }
+  const signOut = () => {
+    return firebaseSignOut(auth);
   };
 
   return {

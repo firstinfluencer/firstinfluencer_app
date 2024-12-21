@@ -1,46 +1,54 @@
 /**
  * Format date for input[type="date"] fields
  */
-export function formatDateForInput(date: Date): string {
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
+export function formatDateForInput(date: Date | string | null | undefined): string {
+  if (!date) return '';
+  
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+      return '';
+    }
+    return dateObj.toISOString().split('T')[0];
+  } catch (error) {
+    console.error('Error formatting date for input:', error);
     return '';
   }
-  return date.toISOString().split('T')[0];
 }
 
 /**
  * Format date with various output options
  */
-export function formatDate(date: Date | string, format: string = 'long'): string {
+export function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return 'N/A';
+  
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) {
-      throw new Error('Invalid date');
-    }
-    
-    if (format === 'yyyy-MM-dd') {
-      return formatDateForInput(dateObj);
+    if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+      return 'N/A';
     }
     
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
-      month: format === 'long' ? 'long' : 'numeric',
-      day: 'numeric',
+      month: 'long',
+      day: 'numeric'
     }).format(dateObj);
   } catch (error) {
     console.error('Error formatting date:', error);
-    return 'Invalid date';
+    return 'N/A';
   }
 }
 
 /**
  * Format relative time (e.g., "2 days ago")
  */
-export function formatRelativeTime(date: Date | string): string {
+export function formatRelativeTime(date: Date | string | null | undefined): string {
+  if (!date) return 'N/A';
+  
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    if (isNaN(dateObj.getTime())) {
-      throw new Error('Invalid date');
+    if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+      return 'N/A';
     }
 
     const now = new Date();
@@ -57,6 +65,6 @@ export function formatRelativeTime(date: Date | string): string {
     return 'Just now';
   } catch (error) {
     console.error('Error formatting relative time:', error);
-    return 'Invalid date';
+    return 'N/A';
   }
 }

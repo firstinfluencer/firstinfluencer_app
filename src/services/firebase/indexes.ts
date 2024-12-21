@@ -1,0 +1,1 @@
+// This file can be safely removed as we'll handle indexes through Firebase Console

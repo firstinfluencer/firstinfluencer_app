@@ -17,42 +17,55 @@ export function useCreatorSearch({
 }: UseCreatorSearchProps = {}) {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // Use mock data since the real API is having issues
-    const mockCreators = generateMockCreators(10);
-    
-    let filtered = mockCreators;
+    const fetchCreators = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Use mock data since the real API is having issues
+        let mockCreators = generateMockCreators(10);
+        
+        // Apply filters
+        if (category) {
+          mockCreators = mockCreators.filter(creator => 
+            creator.categories.includes(category)
+          );
+        }
 
-    if (category) {
-      filtered = filtered.filter(creator => 
-        creator.categories.includes(category)
-      );
-    }
+        if (minFollowers) {
+          mockCreators = mockCreators.filter(creator => 
+            creator.followers.instagram >= minFollowers
+          );
+        }
 
-    if (minFollowers) {
-      filtered = filtered.filter(creator => 
-        creator.followers.instagram >= minFollowers
-      );
-    }
+        if (maxFollowers) {
+          mockCreators = mockCreators.filter(creator => 
+            creator.followers.instagram <= maxFollowers
+          );
+        }
 
-    if (maxFollowers) {
-      filtered = filtered.filter(creator => 
-        creator.followers.instagram <= maxFollowers
-      );
-    }
+        if (searchTerm) {
+          const term = searchTerm.toLowerCase();
+          mockCreators = mockCreators.filter(creator => 
+            creator.displayName.toLowerCase().includes(term) ||
+            creator.platforms.instagram?.toLowerCase().includes(term)
+          );
+        }
 
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(creator => 
-        creator.displayName.toLowerCase().includes(term) ||
-        creator.platforms.instagram?.toLowerCase().includes(term)
-      );
-    }
+        setCreators(mockCreators);
+      } catch (err) {
+        console.error('Error fetching creators:', err);
+        setError(err instanceof Error ? err : new Error('Failed to fetch creators'));
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setCreators(filtered);
-    setLoading(false);
+    fetchCreators();
   }, [category, minFollowers, maxFollowers, searchTerm]);
 
-  return { creators, loading };
+  return { creators, loading, error };
 }

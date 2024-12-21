@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { Hero } from '../components/sections/Hero';
-import { DiscoveryInterface } from '../components/sections/DiscoveryInterface';
+import { MarketingSteps } from '../components/sections/MarketingSteps';
 import { Features } from '../components/sections/Features';
 import { HowItWorks } from '../components/sections/HowItWorks';
 import { Contact } from '../components/sections/Contact';
@@ -16,7 +16,7 @@ export function LandingPage() {
     <main>
       <FloatingDoodles />
       <Hero />
-      <DiscoveryInterface />
+      <MarketingSteps />
       <Features />
       <HowItWorks />
       <Suspense fallback={<div className="h-96 bg-gray-50" />}>

@@ -1,68 +1,52 @@
-import { getCompanyFromEmail } from '../format';
-import type { Brand } from '@/types';
+import { getCompanyFromEmail } from '../format/text';
 
-export function generateCampaignPrompt(prompt: string, brandProfile: Brand | null): string {
-  const companyName = brandProfile?.companyName || 'the brand';
-  const industry = brandProfile?.industry || 'unspecified industry';
-  const companyType = brandProfile?.companyType || '';
-  const revenue = brandProfile?.annualRevenue || '';
-
+export function generateCampaignPrompt(prompt: string, email?: string | null): string {
+  const brandName = email ? getCompanyFromEmail(email) : 'the brand';
+  
   return `
-    Create a detailed influencer campaign brief for ${companyName}, a ${companyType} in the ${industry} industry with annual revenue of ${revenue}.
-    Present the information in clear sections without using asterisks (*) or hash symbols (#).
-    Use simple bullet points (-) for lists.
-    Format all monetary values in Indian Rupees (₹).
+    Create a detailed influencer campaign brief with the following structure:
 
-    Structure the response as follows:
+    Brand: ${brandName}
+    Industry: [One line about the brand's industry]
 
-    Campaign Title
-    [A clear, concise title that reflects ${companyName}'s campaign message]
+    Campaign Title: [A clear, concise title]
 
-    Brand Overview
-    - ${companyName}'s industry and background
-    - Brand values and mission
-    - Target audience alignment based on ${industry} market
-    - Specific considerations for ${companyType} business model
+    Campaign Overview:
+    - Primary objective
+    - Target audience
+    - Key message points
 
-    Content Requirements
-    - Required content formats (Reels, Stories, Posts)
+    Content Requirements:
+    - Required content formats
     - Number of deliverables
-    - Key visual elements to include
-    - Mandatory brand elements
+    - Key visual elements
+    - Brand elements to include
 
-    Creator Tasks
-    - Detailed list of required actions
-    - Content creation guidelines
-    - Specific hashtags to use
-    - Posting schedule and timing
-    - Do's and don'ts
+    Creator Requirements:
+    - Follower range
+    - Engagement rate
+    - Niche focus
+    - Location preferences
 
-    Engagement Guidelines
-    - Expected engagement style
-    - Comment response requirements
-    - Story interaction requirements
-    - Community engagement expectations
-
-    Deliverables Timeline
-    - Content submission deadlines
-    - Review process details
+    Timeline:
+    - Campaign start date
+    - Campaign end date
+    - Content submission deadline
+    - Review process
     - Publishing schedule
-    - Campaign duration
 
-    Compensation Details
-    - Base payment in INR (scaled appropriately for ${revenue} revenue range)
-    - Performance bonuses (if any)
-    - Payment schedule
-    - Additional perks or benefits
+    Compensation:
+    - Per creator budget: [Amount in INR]
+    - Performance bonuses
+    - Payment terms
 
-    Success Metrics
+    Success Metrics:
     - Target engagement rate
-    - Expected reach goals
+    - Expected reach
     - Key performance indicators
-    - Reporting requirements
 
     Original request: ${prompt}
 
-    Note: Keep the response clean and professional, focusing on actionable tasks and clear expectations for the creator.
+    Note: Use plain text without any formatting. Use dashes for lists and colons for labels.
   `;
 }

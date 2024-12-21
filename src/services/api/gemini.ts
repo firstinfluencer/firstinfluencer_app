@@ -1,6 +1,5 @@
 import { getApiKeys } from '../firebase/config';
 import { generateCampaignPrompt } from '@/utils/prompts/campaignPrompt';
-import { getBrandProfile } from '../firebase/brands/repository';
 
 interface GeminiResponse {
   candidates: Array<{
@@ -52,17 +51,11 @@ async function callGeminiAPI(prompt: string): Promise<string> {
   }
 }
 
-export async function generateCampaignSuggestions(prompt: string, uid: string | undefined): Promise<string> {
-  try {
-    // Get brand profile if UID is available
-    const brandProfile = uid ? await getBrandProfile(uid) : null;
-    
-    // Generate enhanced prompt using brand profile data
-    const enhancedPrompt = generateCampaignPrompt(prompt, brandProfile);
-    
-    return callGeminiAPI(enhancedPrompt);
-  } catch (error) {
-    console.error('Error generating campaign suggestions:', error);
-    throw error;
-  }
+export async function generateCampaignSuggestions(prompt: string, email?: string | null): Promise<string> {
+  const enhancedPrompt = generateCampaignPrompt(prompt, email);
+  return callGeminiAPI(enhancedPrompt);
+}
+
+export async function generateBrandInsights(prompt: string): Promise<string> {
+  return callGeminiAPI(prompt);
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Rocket, Bot, Edit } from 'lucide-react';
+import { formatCurrency } from '@/utils/format';
 
 interface CampaignPreviewProps {
   suggestions: string;
@@ -10,31 +11,6 @@ interface CampaignPreviewProps {
 }
 
 export function CampaignPreview({ suggestions, onBack, onLaunch, onEdit }: CampaignPreviewProps) {
-  const formatContent = (text: string) => {
-    const sections = text.split('\n\n').filter(Boolean);
-    
-    return sections.map((section, index) => {
-      const lines = section.split('\n');
-      const title = lines[0];
-      const content = lines.slice(1);
-
-      return (
-        <div key={index} className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            {formatBoldText(title)}
-          </h3>
-          <div className="space-y-2">
-            {content.map((line, lineIndex) => (
-              <p key={lineIndex} className="text-gray-600">
-                {formatBoldText(line.replace(/^[•-]\s*/, '• '))}
-              </p>
-            ))}
-          </div>
-        </div>
-      );
-    });
-  };
-
   const formatBoldText = (text: string) => {
     return text.split(/(\*\*.*?\*\*)/).map((part, index) => {
       if (part.startsWith('**') && part.endsWith('**')) {
@@ -46,6 +22,62 @@ export function CampaignPreview({ suggestions, onBack, onLaunch, onEdit }: Campa
       }
       return part;
     });
+  };
+
+  const formatContent = (text: string) => {
+    const sections = text.split('\n\n').filter(Boolean);
+    
+    // Extract brand and campaign name from first lines
+    const [brandLine, campaignLine, ...rest] = text.split('\n');
+    
+    return (
+      <div className="space-y-6">
+        {/* Brand and Campaign Name Section */}
+        <div className="border-b border-gray-200 pb-4">
+          <h2 className="text-2xl font-bold text-gray-900">{brandLine}</h2>
+          <h3 className="text-xl font-medium text-gray-700 mt-2">{campaignLine}</h3>
+        </div>
+
+        {/* Rest of the content */}
+        {rest.join('\n').split('\n\n').map((section, index) => {
+          const lines = section.split('\n');
+          const title = lines[0];
+          const content = lines.slice(1);
+
+          if (title.toLowerCase().includes('compensation structure')) {
+            // Highlight the per influencer budget
+            const budgetLine = content.find(line => 
+              line.toLowerCase().includes('per influencer budget'));
+            if (budgetLine) {
+              const budgetMatch = budgetLine.match(/₹\s*([\d,]+)/);
+              if (budgetMatch) {
+                const amount = parseInt(budgetMatch[1].replace(/,/g, ''));
+                content.splice(
+                  content.indexOf(budgetLine),
+                  1,
+                  `Per Influencer Budget: ${formatCurrency(amount)}`
+                );
+              }
+            }
+          }
+
+          return (
+            <div key={index} className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                {formatBoldText(title)}
+              </h3>
+              <div className="space-y-2">
+                {content.map((line, lineIndex) => (
+                  <p key={lineIndex} className="text-gray-600">
+                    {formatBoldText(line.replace(/^[•-]\s*/, '• '))}
+                  </p>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -93,7 +125,7 @@ export function CampaignPreview({ suggestions, onBack, onLaunch, onEdit }: Campa
           <span className="font-medium text-indigo-600">AI-Generated Campaign</span>
         </div>
 
-        <div className="p-8 space-y-8">
+        <div className="p-8">
           {formatContent(suggestions)}
         </div>
       </div>

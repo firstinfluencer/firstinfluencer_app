@@ -1,11 +1,11 @@
 import type { Campaign } from '@/types';
 
 function extractBudget(text: string): number {
-  // Look for budget in the Compensation Details section
+  // Look for per influencer budget in the Compensation Structure section
   const compensationSection = text.split('\n\n')
-    .find(section => section.toLowerCase().includes('compensation details'))
+    .find(section => section.toLowerCase().includes('compensation structure'))
     ?.split('\n')
-    .find(line => line.toLowerCase().includes('base payment')) || '';
+    .find(line => line.toLowerCase().includes('per influencer budget')) || '';
 
   // Match INR amounts with or without commas and decimals
   const budgetMatch = compensationSection.match(/₹\s*([\d,]+(?:\.\d{2})?)/);
@@ -15,30 +15,23 @@ function extractBudget(text: string): number {
     return parseInt(budgetMatch[1].replace(/,/g, ''));
   }
 
-  // Fallback: Look for any INR amount in the text
-  const fallbackMatch = text.match(/₹\s*([\d,]+(?:\.\d{2})?)/);
-  if (fallbackMatch) {
-    return parseInt(fallbackMatch[1].replace(/,/g, ''));
-  }
-
   // Default budget if no amount found
   return 50000;
 }
 
 function extractTitle(text: string): string {
   const lines = text.split('\n');
-  const titleLine = lines.find(line => 
-    !line.toLowerCase().includes('campaign title') && 
-    line.trim().length > 0
-  );
-  return titleLine?.trim() || 'New Campaign';
+  // Find the line after "Campaign Title:"
+  const titleIndex = lines.findIndex(line => 
+    line.trim().toLowerCase() === 'campaign title:');
+  return lines[titleIndex + 1]?.trim() || 'New Campaign';
 }
 
 function extractCategory(text: string): string {
   const contentSection = text.split('\n\n')
     .find(section => 
       section.toLowerCase().includes('content requirements') ||
-      section.toLowerCase().includes('brand overview')
+      section.toLowerCase().includes('campaign overview')
     );
 
   if (contentSection) {
@@ -53,45 +46,44 @@ function extractCategory(text: string): string {
 }
 
 function extractRequirements(text: string): string[] {
-  const sections = ['content requirements', 'creator tasks', 'deliverables'];
+  const sections = text.split('\n\n');
   const requirements: string[] = [];
 
-  const lines = text.split('\n');
-  let inRelevantSection = false;
+  // Look for requirements in Content Requirements and Creator Requirements sections
+  const relevantSections = sections.filter(section =>
+    section.toLowerCase().includes('requirements') ||
+    section.toLowerCase().includes('deliverables')
+  );
 
-  for (const line of lines) {
-    const trimmedLine = line.trim();
-    
-    // Check if we're entering a relevant section
-    if (sections.some(section => 
-      trimmedLine.toLowerCase().includes(section)
-    )) {
-      inRelevantSection = true;
-      continue;
-    }
-
-    // Check if we're entering a new section (ending the current one)
-    if (trimmedLine.endsWith(':') || trimmedLine.match(/^[A-Z][\w\s]+$/)) {
-      inRelevantSection = false;
-    }
-
-    // Add requirements from relevant sections
-    if (inRelevantSection && trimmedLine.startsWith('-')) {
-      const requirement = trimmedLine.substring(1).trim();
-      if (requirement && !requirements.includes(requirement)) {
-        requirements.push(requirement);
+  relevantSections.forEach(section => {
+    const lines = section.split('\n');
+    lines.forEach(line => {
+      if (line.trim().startsWith('-')) {
+        const requirement = line.substring(1).trim();
+        if (requirement && !requirements.includes(requirement)) {
+          requirements.push(requirement);
+        }
       }
-    }
-  }
+    });
+  });
 
   return requirements;
+}
+
+function extractBrandName(text: string): string {
+  const lines = text.split('\n');
+  // Find the line starting with "Brand:"
+  const brandLine = lines.find(line => line.trim().startsWith('Brand:'));
+  return brandLine?.replace('Brand:', '').trim() || '';
 }
 
 export function parseCampaignFromAI(aiResponse: string): Omit<Campaign, 'id' | 'brandId' | 'createdAt'> {
   const budget = extractBudget(aiResponse);
   const title = extractTitle(aiResponse);
-  const category = extractCategory(aiResponse);
-  const requirements = extractRequirements(aiResponse);
+  const brandName = extractBrandName(aiResponse);
+  
+  // Format the description to start with brand and campaign name
+  const description = `${brandName}\n${title}\n\n${aiResponse}`;
 
   // Calculate campaign duration (default 30 days if not specified)
   const startDate = new Date();
@@ -99,10 +91,10 @@ export function parseCampaignFromAI(aiResponse: string): Omit<Campaign, 'id' | '
 
   return {
     title,
-    description: aiResponse,
+    description,
     budget,
-    requirements,
-    category,
+    requirements: extractRequirements(aiResponse),
+    category: extractCategory(aiResponse),
     status: 'active' as const,
     startDate,
     endDate

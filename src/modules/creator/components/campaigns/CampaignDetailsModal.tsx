@@ -61,7 +61,7 @@ export function CampaignDetailsModal({ campaign, onClose }: CampaignDetailsModal
                 </div>
                 <div className="p-4 bg-gray-50 rounded-xl">
                   <Tag className="w-6 h-6 text-gray-500 mb-2" />
-                  <p className="text-lg font-semibold">{campaign.category || 'General'}</p>
+                  <p className="text-lg font-semibold">{campaign.category}</p>
                   <p className="text-sm text-gray-600">Category</p>
                 </div>
               </div>
@@ -87,17 +87,6 @@ export function CampaignDetailsModal({ campaign, onClose }: CampaignDetailsModal
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Footer */}
-          <div className="p-6 bg-gray-50 border-t">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-medium"
-            >
-              Apply for Campaign
-            </motion.button>
           </div>
         </div>
       </motion.div>

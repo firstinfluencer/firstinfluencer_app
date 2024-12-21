@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, DollarSign, Tag, Edit } from 'lucide-react';
+import { Calendar, DollarSign, Tag, Edit, BarChart2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Campaign } from '@/types';
 import { formatCurrency, formatDate } from '@/utils/format';
 
@@ -10,6 +11,8 @@ interface CampaignCardProps {
 }
 
 export function CampaignCard({ campaign, onEdit }: CampaignCardProps) {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <div className="p-6">
@@ -18,15 +21,24 @@ export function CampaignCard({ campaign, onEdit }: CampaignCardProps) {
             <h3 className="text-xl font-semibold text-gray-900">{campaign.title}</h3>
             <p className="text-gray-600 mt-1">{campaign.category}</p>
           </div>
-          {onEdit && (
+          <div className="flex space-x-2">
+            {onEdit && (
+              <motion.button
+                onClick={onEdit}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Edit className="w-5 h-5 text-gray-500" />
+              </motion.button>
+            )}
             <motion.button
-              onClick={onEdit}
+              onClick={() => navigate(`/brand/campaigns/${campaign.id}/track`)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               whileHover={{ scale: 1.05 }}
             >
-              <Edit className="w-5 h-5 text-gray-500" />
+              <BarChart2 className="w-5 h-5 text-gray-500" />
             </motion.button>
-          )}
+          </div>
         </div>
 
         <p className="text-gray-600 mb-6 line-clamp-2">{campaign.description}</p>

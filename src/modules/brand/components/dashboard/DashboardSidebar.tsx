@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, BarChart3, MessageSquare, Settings, LogOut, PlusCircle, Briefcase } from 'lucide-react';
+import { Users, MessageSquare, Settings, LogOut, PlusCircle, Briefcase, Activity } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
@@ -30,8 +30,8 @@ export function DashboardSidebar() {
         { icon: PlusCircle, label: 'Create Campaign', path: '/brand/campaigns/create' },
       ]
     },
-    { icon: BarChart3, label: 'Analytics', path: '/brand/analytics' },
-    { icon: MessageSquare, label: 'Messages', path: '/brand/messages' },
+    { icon: Activity, label: 'Track Campaigns', path: '/brand/campaigns/track' },
+    { icon: MessageSquare, label: 'Messages', path: '/brand/messages', badge: '3' },
     { icon: Settings, label: 'Settings', path: '/brand/settings' },
   ];
 
@@ -62,6 +62,11 @@ export function DashboardSidebar() {
               >
                 <item.icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
+                {item.badge && (
+                  <span className="ml-auto bg-red-100 text-red-600 text-xs font-medium px-2 py-0.5 rounded-full">
+                    {item.badge}
+                  </span>
+                )}
               </motion.button>
 
               {item.subItems?.map((subItem) => (
